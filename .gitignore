@@ -1,0 +1,55 @@
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Credentials (CRITICAL — never commit) ───────────────────────────────────
+keys/*
+!keys/.gitkeep
+*-service-account*.json
+api_key.txt
+*.pem
+.env
+.env.*
+!.env.example
+
+# ── Local agent/handoff files ───────────────────────────────────────────────
+CLAUDE.md
+agents/
+docs/
+
+# ── Generated audio (large, regeneratable) ──────────────────────────────────
+output/*
+!output/.gitkeep
+
+# ── Logs ────────────────────────────────────────────────────────────────────
+*.log
+
+# ── OS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editors ─────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+#-------
+keys/
+output/
+agents/
+docs/
+CLAUDE.md

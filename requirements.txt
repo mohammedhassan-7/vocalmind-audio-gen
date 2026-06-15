@@ -1,0 +1,8 @@
+# Gemini TTS via Vertex AI / Google AI
+google-genai>=0.3.0
+
+# Audio merging and silence padding
+pydub>=0.25.1
+
+# audioop replacement for Python 3.13+
+audioop-lts>=0.2.1; python_version >= "3.13"
