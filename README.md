@@ -84,7 +84,7 @@ After writing or editing a script, regenerate the ground-truth JSON:
 
 ```bash
 python build_ground_truth.py                                # all scripts
-python build_ground_truth.py --call CALL_06_priya_password  # one script
+python build_ground_truth.py --call CALL_06_pin_reset       # one script
 python build_ground_truth.py --check                        # validate only
 ```
 
@@ -164,25 +164,9 @@ agent_profile:
   voice_hint: "..."
 ```
 
-Current scripts resolve to:
+Current scripts resolve to their assigned agent automatically (e.g. `priya`, `daniel`, `marcus`, etc). A single agent can own multiple calls (`CALL_06_priya_password_reset`, `CALL_07_priya_complaint`, …) — the watcher routes them all to the same agent user. There are currently 50 scripts covering various scenarios.
 
-| Script | Token |
-|--------|-------|
-| CALL_01_refund_outage              | priya  |
-| CALL_02_billing_dispute_escalation | daniel |
-| CALL_03_tech_support_slow_internet | marcus |
-| CALL_04_access_recovery_fraud      | aisha  |
-| CALL_05_retention_abuse            | hannah |
-
-A single agent can own multiple calls (`CALL_06_priya_password_reset`,
-`CALL_07_priya_complaint`, …) — the watcher routes them all to the same
-agent user.
-
-> **Going forward, all new scripts use exactly two speakers (CUSTOMER and
-> AGENT) — no Tier-2/Tier-3 escalation.**  The watcher assigns one file
-> to one agent, so multi-agent calls leave portions of the audio
-> "credited" to the wrong agent.  Existing CALL_02, CALL_04, CALL_05 are
-> legacy and stay as-is; new calls will be 2-agent.
+> **Note:** All 50 scripts use exactly two speakers (CUSTOMER and AGENT) so the caller credits match analytics endpoints correctly. The old legacy escalation flow scripts have been moved to `scripts/_legacy_multi_agent/` for reference but are no longer active in the pipeline.
 
 ---
 
