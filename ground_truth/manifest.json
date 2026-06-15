@@ -354,6 +354,141 @@
       "primary_agent": "Karen",
       "turn_count": 48,
       "expected_outcome": "Customer is angry about a 5-business-day hold Meridian placed on a $14,000 check deposited from an unfamiliar payer (Reg CC large-deposit hold). He escalates to directed personal attacks on Karen. Karen explains the policy clearly, offers what's possible within her authority (partial-release request to Operations), maintains tone discipline (BNK-CC-RULE-014 — never matches volume), and follows BNK-CC-RULE-017 3-strike protocol exactly: Strike 1 warning, Strike 2 final warning, Strike 3 termination + Customer Conduct flag + case note. The CHECK-HOLD issue remains unresolved at termination (customer must call back to continue) — and that's documented. PASS — policy-perfect termination."
+    },
+    {
+      "call_id": "CALL_36_failed_verification",
+      "audio_file": "CALL_36_priya_failed_verification.wav",
+      "script_file": "scripts/CALL_36_failed_verification.md",
+      "ground_truth_file": "ground_truth/CALL_36_failed_verification.json",
+      "primary_agent": "Priya",
+      "turn_count": 40,
+      "expected_outcome": "Caller wants his account PIN reset but can only provide 1 of the 5 identifiers (name only) — wrong account number, wrong last-4 of payment, no PIN, no SSN. Priya correctly REFUSES all account access and the reset per CS-RULE-005 / SEC-RULE-007, never confirms account details to the unverified caller (SEC-RULE-006), and directs him to a store with government photo ID. She stays warm and leaks no data. PASS — exemplary hard refusal; negative-path counterpart to CALL_06."
+    },
+    {
+      "call_id": "CALL_37_cvv_solicitation",
+      "audio_file": "CALL_37_daniel_cvv_solicitation.wav",
+      "script_file": "scripts/CALL_37_cvv_solicitation.md",
+      "ground_truth_file": "ground_truth/CALL_37_cvv_solicitation.json",
+      "primary_agent": "Daniel",
+      "turn_count": 40,
+      "expected_outcome": "Customer calls to update the card on file. Daniel verifies identity correctly, but then INSTEAD OF using secure tone entry he asks the customer to read her full 16-digit card number aloud (SEC-RULE-003 FAIL) AND the 3-digit CVV aloud (SEC-RULE-004 FAIL), then reads the full number back to confirm (second SEC-RULE-003 FAIL). The payment update itself succeeds and the customer is happy — but the call is a serious PCI-DSS violation she never notices. The dangerous-handling failure mode: a satisfied customer masking a critical compliance breach."
+    },
+    {
+      "call_id": "CALL_38_multi_issue_tech_billing",
+      "audio_file": "CALL_38_marcus_multi_issue_tech_billing.wav",
+      "script_file": "scripts/CALL_38_multi_issue_tech_billing.md",
+      "ground_truth_file": "ground_truth/CALL_38_multi_issue_tech_billing.json",
+      "primary_agent": "Marcus",
+      "turn_count": 48,
+      "expected_outcome": "Customer raises TWO unrelated issues in one call: (1) intermittent connection drops every evening, and (2) a $7 line-item on his bill he doesn't recognize. Marcus handles both cleanly: diagnoses the drops as 2.4GHz channel congestion and queues a firmware push + channel change (SOP-03), then explains the $7 charge is a regional sports surcharge he opted into and removes it going forward (SOP-02). Re-engages during the line scan (CS-RULE-009). PASS — exemplary multi-issue handling, both threads resolved and summarized separately."
+    },
+    {
+      "call_id": "CALL_39_safety_protocol",
+      "audio_file": "CALL_39_aisha_safety_protocol.wav",
+      "script_file": "scripts/CALL_39_safety_protocol.md",
+      "ground_truth_file": "ground_truth/CALL_39_safety_protocol.json",
+      "primary_agent": "Aisha",
+      "turn_count": 44,
+      "expected_outcome": "Customer calls upset that his service was cut for non-payment during a hard period. Mid-call he makes a statement indicating he may be at risk of self-harm. Aisha immediately shifts to the Safety Protocol per CS-RULE-017: she stays calm and present, does NOT disconnect, keeps the line open, signals a colleague to contact emergency services per local procedure, offers the crisis line (988), and keeps him talking until support is connected. She does not lecture or minimize. The billing issue becomes secondary. PASS — exemplary, life-safety-first handling of a CRITICAL rule; high-value distress/sad emotion ground-truth example."
+    },
+    {
+      "call_id": "CALL_40_bereavement_account",
+      "audio_file": "CALL_40_hannah_bereavement_account.wav",
+      "script_file": "scripts/CALL_40_bereavement_account.md",
+      "ground_truth_file": "ground_truth/CALL_40_bereavement_account.json",
+      "primary_agent": "Hannah",
+      "turn_count": 46,
+      "expected_outcome": "A recently widowed caller phones to report that her husband, the account holder, has passed away, and to transfer or close the service. Because the holder is deceased, standard 3-of-5 cannot be completed by him; Hannah verifies the CALLER and her relationship per the bereavement/third-party path (CS-RULE-006), explains the documentation needed (death certificate, proof of next-of-kin), waives the early-termination fee for bereavement, and offers either transferring the account into Margaret's name or closing it — her choice. Compassionate, no upsell, no pressure. PASS — exemplary bereavement handling; strong sad-emotion ground truth."
+    },
+    {
+      "call_id": "CALL_41_compliment_feedback",
+      "audio_file": "CALL_41_priya_compliment_feedback.wav",
+      "script_file": "scripts/CALL_41_compliment_feedback.md",
+      "ground_truth_file": "ground_truth/CALL_41_compliment_feedback.json",
+      "primary_agent": "Priya",
+      "turn_count": 32,
+      "expected_outcome": "Customer calls specifically to give positive feedback about a technician who went above and beyond on an install. Priya receives the compliment graciously, logs it as a recognition note for the tech, and — reading genuine satisfaction — offers a light, no-pressure mention of a loyalty perk the customer qualifies for (a free speed-boost trial). Customer accepts. PASS — exemplary handling of a happy-path call; happy-emotion ground-truth balance. Short call."
+    },
+    {
+      "call_id": "CALL_42_unauthorized_third_party",
+      "audio_file": "CALL_42_daniel_unauthorized_third_party.wav",
+      "script_file": "scripts/CALL_42_unauthorized_third_party.md",
+      "ground_truth_file": "ground_truth/CALL_42_unauthorized_third_party.json",
+      "primary_agent": "Daniel",
+      "turn_count": 42,
+      "expected_outcome": "Caller is the account holder's roommate, NOT an authorized user, calling to change the WiFi plan and update the service address on someone else's account. He has the account number and the holder's name (because they live together) but is not on the account. Daniel accepts weak 'verification', never confirms authorized-user status (CS-RULE-006 FAIL), discloses account details to an unverified third party (SEC-RULE-006 FAIL), and processes a plan change + address change for an unauthorized party (CS-RULE-005/006 FAIL). The caller is satisfied. Serious access-control failure that looks like good service — the negative counterpart to CALL_36's correct refusal."
+    },
+    {
+      "call_id": "CALL_43_failed_enhanced_verification",
+      "audio_file": "CALL_43_sarah_failed_enhanced_verification.wav",
+      "script_file": "scripts/CALL_43_failed_enhanced_verification.md",
+      "ground_truth_file": "ground_truth/CALL_43_failed_enhanced_verification.json",
+      "primary_agent": "Sarah",
+      "turn_count": 42,
+      "expected_outcome": "Caller wants to wire $9,000 urgently but FAILS Enhanced Verification: he clears two standard identifiers, then gives a wrong security challenge phrase and cannot complete the callback to the number on file (he's calling from a different number). Sarah correctly REFUSES the wire per BNK-CC-RULE-007, never confirms account details to the unverified caller (BNK-SEC-RULE-008), and directs him to complete it in person at a branch with photo ID (BNK-SEC-RULE-009). She holds firm despite urgency and frustration — exactly the discipline that defeats wire-fraud social engineering. PASS — exemplary hard refusal; negative counterpart to CALL_22."
+    },
+    {
+      "call_id": "CALL_44_card_payment_pci_violation",
+      "audio_file": "CALL_44_tyler_card_payment_pci_violation.wav",
+      "script_file": "scripts/CALL_44_card_payment_pci_violation.md",
+      "ground_truth_file": "ground_truth/CALL_44_card_payment_pci_violation.json",
+      "primary_agent": "Tyler",
+      "turn_count": 40,
+      "expected_outcome": "Customer calls to make a one-time payment toward her auto loan using a debit card from another bank. Tyler verifies identity correctly, but then INSTEAD OF using the secure tone-capture system he has the customer read her full 16-digit card number aloud (BNK-SEC-RULE-005 FAIL — card data spoken over unencrypted line), asks for the CVV aloud (BNK-SEC-RULE-004 FAIL), and reads the full number back to confirm. The payment posts and the customer is happy. A serious PCI-DSS / GLBA breach masked by a satisfied customer. Banking counterpart to CALL_37."
+    },
+    {
+      "call_id": "CALL_45_business_account_takeover",
+      "audio_file": "CALL_45_andre_business_account_takeover.wav",
+      "script_file": "scripts/CALL_45_business_account_takeover.md",
+      "ground_truth_file": "ground_truth/CALL_45_business_account_takeover.json",
+      "primary_agent": "Andre",
+      "turn_count": 50,
+      "expected_outcome": "Business owner discovers her company online banking shows a changed contact email and two pending outbound transfers she didn't initiate — a classic account takeover. Andre completes Enhanced Verification (control person), then executes BNK-SEC-RULE-010 in full: (1) freezes all account changes AND outbound transfers, (2) flags Security Review, (3) opens a Fraud Operations ticket (4-hr follow-up), (4) advises credential changes. He arranges the Identity Theft Affidavit mailed to the address ON FILE per BNK-FRAUD-RULE-009 (not any address given on the call), and advises the BNK-FRAUD-RULE-010 self-protection steps (credit bureaus, IdentityTheft.gov) without filing them himself. PASS — exemplary takeover handling; banking parallel to NexaLink CALL_16."
+    },
+    {
+      "call_id": "CALL_46_wire_recall",
+      "audio_file": "CALL_46_jasmine_wire_recall.wav",
+      "script_file": "scripts/CALL_46_wire_recall.md",
+      "ground_truth_file": "ground_truth/CALL_46_wire_recall.json",
+      "primary_agent": "Jasmine",
+      "turn_count": 48,
+      "expected_outcome": "Customer realizes about an hour ago she wired $6,200 to a scammer posing as her contractor (a redirected-invoice scam). She calls in a panic. Jasmine recognizes time is the critical variable, invokes the Wire Recall procedure per BNK-FRAUD-RULE-006 WHILE the customer is on the line (contacts Wire Operations), is honest that recovery is NOT guaranteed once funds settle (BNK-FRAUD-RULE-005 — no false promise), opens a Fraud Operations ticket (4-hr SLA), and advises protective steps. Adapts tone to the customer's distress (BNK-CC-RULE-013). PASS — exemplary urgent fraud handling; strong surprised/afraid/relieved emotion coverage."
+    },
+    {
+      "call_id": "CALL_47_estate_bereavement",
+      "audio_file": "CALL_47_karen_estate_bereavement.wav",
+      "script_file": "scripts/CALL_47_estate_bereavement.md",
+      "ground_truth_file": "ground_truth/CALL_47_estate_bereavement.json",
+      "primary_agent": "Karen",
+      "turn_count": 46,
+      "expected_outcome": "A recently widowed caller phones to handle his late wife's bank accounts. Because the holder is deceased, Karen verifies the CALLER and his relationship via the estate/third-party path (BNK-CC-RULE-006), explains the documentation an estate requires (death certificate; for joint vs sole accounts the differing process — joint passes to him, sole requires Letters Testamentary or a small-estate affidavit), waives any fees for bereavement, places a protective hold so no auto-debits cause overdrafts, and opens an Estate Services ticket. Compassionate, no upsell. PASS — exemplary estate handling; banking parallel to NexaLink CALL_40; strong sad-emotion ground truth."
+    },
+    {
+      "call_id": "CALL_48_cd_maturity_surprise",
+      "audio_file": "CALL_48_sarah_cd_maturity_surprise.wav",
+      "script_file": "scripts/CALL_48_cd_maturity_surprise.md",
+      "ground_truth_file": "ground_truth/CALL_48_cd_maturity_surprise.json",
+      "primary_agent": "Sarah",
+      "turn_count": 32,
+      "expected_outcome": "Customer calls worried that several thousand dollars 'appeared' in his savings overnight, afraid it's a bank error he'll be liable for. Sarah verifies him, then happily explains it's legitimate: a 12-month CD he opened last year matured and the principal plus interest auto-deposited to his savings, plus a small loyalty-rate bonus. The customer is pleasantly surprised and relieved. Sarah offers (no pressure) to roll it into a new CD at the current rate or leave it. PASS — clean positive-surprise call; strong surprised + happy emotion ground truth. Short call."
+    },
+    {
+      "call_id": "CALL_49_savings_wrong_info_no_disclosure",
+      "audio_file": "CALL_49_tyler_savings_wrong_info_no_disclosure.wav",
+      "script_file": "scripts/CALL_49_savings_wrong_info_no_disclosure.md",
+      "ground_truth_file": "ground_truth/CALL_49_savings_wrong_info_no_disclosure.json",
+      "primary_agent": "Tyler",
+      "turn_count": 42,
+      "expected_outcome": "Existing customer asks to open a High-Yield Savings account. Tyler (1) quotes the APY WRONG from memory — says 5.1% when the true rate is 4.35% (BNK-REG-RULE-003 FAIL, contradicts KB 1.2), (2) states the wrong minimum and claims 'no excessive-withdrawal fee' when there is a $10/item fee after 6 (wrong information, contradicts KB 1.4), (3) SKIPS the Reg DD Truth-in-Savings disclosure and acknowledgement entirely (BNK-REG-RULE-006 FAIL), and (4) is dismissive when the customer asks clarifying questions (BNK-CC-RULE-012 'I don't know' + curt) and talks over her once (BNK-CC-RULE-008). The account is opened on materially wrong information. Multi-violation wrong-information failure; banking counterpart to CALL_10."
+    },
+    {
+      "call_id": "CALL_50_repeat_dispute_flag",
+      "audio_file": "CALL_50_jasmine_repeat_dispute_flag.wav",
+      "script_file": "scripts/CALL_50_repeat_dispute_flag.md",
+      "ground_truth_file": "ground_truth/CALL_50_repeat_dispute_flag.json",
+      "primary_agent": "Jasmine",
+      "turn_count": 46,
+      "expected_outcome": "Customer calls to dispute a $58 subscription charge — his FOURTH dispute in 90 days. Jasmine takes the Reg E claim correctly (verbal claim, provisional credit within her $500 cap), but the repeat pattern auto-flags under BNK-FIN-RULE-006, so she opens a Consumer Compliance review ticket and informs the customer plainly that future dispute decisions will be reviewed (BNK-CC-RULE-014). Critically, she does NOT accuse him of fraud, does NOT mention any SAR or internal suspicion (BNK-REG-RULE-011 no-tip-off spirit), and stays neutral and non-judgmental (BNK-CC-RULE-013). MIXED outcome: this dispute is honored, but the account is now under pattern review. Tests diplomatic handling of a suspicious-but-not-confirmed pattern."
     }
   ]
 }

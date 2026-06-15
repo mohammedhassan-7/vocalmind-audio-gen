@@ -41,6 +41,16 @@ from google.genai import types
 
 from parse_scripts import Turn, parse_agent_name, parse_metadata, parse_script
 
+# ── Optional .env loader ──────────────────────────────────────────────────────
+# Load environment variables from a .env file at the repo root if one exists.
+# python-dotenv is in requirements.txt but the load is best-effort so the
+# pipeline still works in environments where it isn't installed.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent / ".env")
+except ImportError:
+    pass
+
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
 _PIPELINE   = Path(__file__).resolve().parent
@@ -48,20 +58,26 @@ SCRIPTS_DIR = _PIPELINE / "scripts"
 OUTPUT_DIR  = _PIPELINE / "output"
 
 # Per-agent rollup: a sibling of output/ where each agent has a folder
-# containing copies of every merged WAV they were the AGENT on. Useful for
-# listening to one agent's full corpus at a time without hunting through
-# per-call folders.
+# containing every merged WAV they were the AGENT on. Hardlinked from
+# output/ where the filesystem supports it (same bytes on disk, two paths),
+# otherwise copied. Useful for listening to one agent's full corpus at a time
+# without hunting through per-call folders.
 AGENTS_DIR  = _PIPELINE / "agents"
 
 # Credentials directory.  Looks for a service-account JSON or api_key.txt.
-# Override with the TTS_KEY_DIR environment variable if your keys live
-# outside the repo (recommended for security).
+# Override with the TTS_KEY_DIR environment variable (or .env entry) if your
+# keys live outside the repo (recommended for security).
 KEY_DIR = Path(
     os.environ.get(
         "TTS_KEY_DIR",
         str(_PIPELINE / "keys"),
     )
 ).expanduser()
+
+# Vertex AI project + location. Used only when a service-account JSON is
+# present in KEY_DIR (Vertex path). Override per-environment via .env.
+TTS_PROJECT_ID = os.environ.get("TTS_PROJECT_ID", "vocalmind-487116")
+TTS_LOCATION   = os.environ.get("TTS_LOCATION",   "us-central1")
 
 TTS_MODEL  = "gemini-2.5-flash-preview-tts"
 
@@ -678,9 +694,13 @@ def generate_call(
 def _copy_to_agent_folder(merged_path: Path, agent_token: str) -> None:
     """Mirror the merged WAV into agents/<org>/<agent_token>/ as a flat collection.
 
+    Uses a hardlink when the filesystem supports it (same bytes on disk, two
+    paths) and falls back to a full copy where hardlinks aren't possible
+    (cross-filesystem, certain FAT/exFAT setups). Idempotent — replaces any
+    existing entry so re-runs stay in sync with output/.
+
     The org is resolved from AGENT_ORG_BY_NAME; unknown agents fall through
     to a generic "unassigned" org so the file is not silently dropped.
-    Idempotent — overwrites any existing copy so re-runs stay in sync.
     """
     import shutil
     if not merged_path.exists() or not agent_token:
@@ -688,8 +708,22 @@ def _copy_to_agent_folder(merged_path: Path, agent_token: str) -> None:
     org = AGENT_ORG_BY_NAME.get(agent_token, "unassigned")
     agent_dir = AGENTS_DIR / org / agent_token
     agent_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(merged_path, agent_dir / merged_path.name)
-    logging.info(f"  → agents/{org}/{agent_token}/{merged_path.name}")
+    dst = agent_dir / merged_path.name
+    # Always start fresh so a hardlink replaces any stale copy and vice versa.
+    if dst.exists() or dst.is_symlink():
+        try:
+            dst.unlink()
+        except OSError:
+            pass
+    try:
+        os.link(merged_path, dst)
+        link_kind = "link"
+    except OSError:
+        # Cross-volume, unsupported filesystem, or permission issue —
+        # fall back to a full copy so the rollup still works.
+        shutil.copy2(merged_path, dst)
+        link_kind = "copy"
+    logging.info(f"  → agents/{org}/{agent_token}/{merged_path.name}  ({link_kind})")
 
 
 # ── Credentials & client ──────────────────────────────────────────────────────
@@ -716,11 +750,14 @@ def _build_client(key_dir: Path) -> genai.Client:
     if matches:
         creds_path = str(matches[0])
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
-        logging.info("Using Vertex AI with service account: %s", Path(creds_path).name)
+        logging.info(
+            "Using Vertex AI with service account: %s  (project=%s, location=%s)",
+            Path(creds_path).name, TTS_PROJECT_ID, TTS_LOCATION,
+        )
         return genai.Client(
             vertexai=True,
-            project="vocalmind-487116",
-            location="us-central1",
+            project=TTS_PROJECT_ID,
+            location=TTS_LOCATION,
         )
 
     # 2. Fallback: API key → Google AI / AI Studio
