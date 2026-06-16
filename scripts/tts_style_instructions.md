@@ -339,10 +339,10 @@ The rich TTS vocabulary used in scripts (~50 fine-grained tags) is collapsed ont
 | `frustrated` | worried, anxious, afraid, frustrated, impatient, irritated, curt, suspicious, skeptical, concerned, confused, resolute_afraid |
 | `surprised` | surprised, shocked |
 
-If you genuinely need a new TTS emotion shade, add it to **both** `generate_audio.py::EMOTION_STYLE` (with a natural-language clause) **and** `emotion_map.py::TTS_TO_VOCALMIND_EMOTION` (with its canonical projection) in the same change.
+If you genuinely need a new TTS emotion shade, add it to **both** `src/generate_audio.py::EMOTION_STYLE` (with a natural-language clause) **and** `src/emotion_map.py::TTS_TO_VOCALMIND_EMOTION` (with its canonical projection) in the same change.
 
 After writing or editing a script:
 ```bash
-python build_ground_truth.py --check       # validate emotion coverage
-python build_ground_truth.py               # emit ground_truth/*.json
+python src/build_ground_truth.py --check       # validate emotion coverage
+python src/build_ground_truth.py               # emit ground_truth/*.json
 ```

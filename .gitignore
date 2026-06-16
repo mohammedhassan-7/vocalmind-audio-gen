@@ -26,12 +26,12 @@ api_key.txt
 
 # ── Local agent/handoff files ───────────────────────────────────────────────
 CLAUDE.md
-agents/
 docs/
 
 # ── Generated audio (large, regeneratable) ──────────────────────────────────
-output/*
-!output/.gitkeep
+data/output/*
+!data/output/.gitkeep
+data/agents/
 
 # ── Logs ────────────────────────────────────────────────────────────────────
 *.log
@@ -49,7 +49,5 @@ desktop.ini
 
 #-------
 keys/
-output/
-agents/
 docs/
 CLAUDE.md

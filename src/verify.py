@@ -3,11 +3,11 @@
 Verifies that every script in scripts/CALL_*.md has:
   - a matching declared turn count in YAML
   - the same number of [Tnn] dialog blocks in the body
-  - the same number of per-turn WAVs on disk in output/<call>/turns/
-  - a merged WAV at output/<call>/<merged>.wav
-  - a ground-truth JSON at ground_truth/<call_id>.json
+  - the same number of per-turn WAVs on disk in data/output/<call>/turns/
+  - a merged WAV at data/output/<call>/<merged>.wav
+  - a ground-truth JSON at data/ground_truth/<call_id>.json
 
-Also scans output/generation.log (if present) for the historical retry-failed
+Also scans data/output/generation.log (if present) for the historical retry-failed
 error pattern.
 
 Exit code:
@@ -16,8 +16,8 @@ Exit code:
   2 — environment problem (missing scripts/ directory)
 
 Usage:
-  python verify.py                     # audit every script in scripts/
-  python verify.py CALL_03 CALL_36     # audit just the named calls
+  python src/verify.py                  # audit every script in scripts/
+  python src/verify.py CALL_03 CALL_36  # audit just the named calls
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 
 _TURN_RE     = re.compile(r"\[T(\d+)\]")
 _DECLARED_RE = re.compile(r"^turns:\s*(\d+)", re.MULTILINE)
@@ -44,7 +44,7 @@ def audit_call(script: Path) -> dict:
     body_ids = sorted({int(t) for t in _TURN_RE.findall(text)})
     in_body = len(body_ids)
 
-    turns_dir = ROOT / "output" / cid / "turns"
+    turns_dir = ROOT / "data" / "output" / cid / "turns"
     on_disk = sorted(
         int(_WAV_TURN_RE.match(p.name).group(1))
         for p in turns_dir.glob("T*.wav")
@@ -52,12 +52,12 @@ def audit_call(script: Path) -> dict:
     )
 
     merged = [
-        p for p in (ROOT / "output" / cid).glob("*.wav")
+        p for p in (ROOT / "data" / "output" / cid).glob("*.wav")
         if "turns" not in str(p)
     ]
     has_merged = bool(merged)
 
-    gt = ROOT / "ground_truth" / f"{cid}.json"
+    gt = ROOT / "data" / "ground_truth" / f"{cid}.json"
     has_gt = gt.exists()
 
     missing_turns = [t for t in body_ids if t not in on_disk]
@@ -112,10 +112,10 @@ def fmt_row(r: dict) -> str:
 
 
 def scan_log() -> int:
-    """Print the count of historical retry-failed entries in output/generation.log."""
-    log = ROOT / "output" / "generation.log"
+    """Print the count of historical retry-failed entries in data/output/generation.log."""
+    log = ROOT / "data" / "output" / "generation.log"
     if not log.exists():
-        print("  (no output/generation.log; nothing to scan)")
+        print("  (no data/output/generation.log; nothing to scan)")
         return 0
     text = log.read_text(encoding="utf-8", errors="ignore")
     n = text.count("skipped (all retries failed)")

@@ -2,8 +2,8 @@
 
 For each script in ./scripts/CALL_*.md this script produces:
 
-  * One per-call JSON  →  ground_truth/<call_id>.json
-  * One manifest.json  →  ground_truth/manifest.json
+  * One per-call JSON  →  data/ground_truth/<call_id>.json
+  * One manifest.json  →  data/ground_truth/manifest.json
 
 The JSON schema matches what VocalMind already consumes in
 `storage/audio/<org>/evaluation/`.  Each turn carries its TTS emotion
@@ -45,9 +45,9 @@ from parse_scripts import (
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
-_PIPELINE   = Path(__file__).resolve().parent
+_PIPELINE   = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = _PIPELINE / "scripts"
-GT_DIR      = _PIPELINE / "ground_truth"
+GT_DIR      = _PIPELINE / "data" / "ground_truth"
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -194,7 +194,7 @@ def build_manifest(call_records: list[dict]) -> dict:
             "call_id":          rec["call_id"],
             "audio_file":       rec["audio_file"],
             "script_file":      rec["script_file"],
-            "ground_truth_file": f"ground_truth/{rec['call_id']}.json",
+            "ground_truth_file": f"data/ground_truth/{rec['call_id']}.json",
             "primary_agent":    rec["primary_agent"],
             "turn_count":       rec["turn_count"],
             "expected_outcome": rec["expected_outcome"],

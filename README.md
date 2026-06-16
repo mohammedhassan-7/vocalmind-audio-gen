@@ -31,7 +31,7 @@ as-is to regenerate the audio, or as a template for your own scripts.
    e.g. CALL_01_priya_refund_outage.wav
    ```
 
-6. Hardlinks the merged WAV into `agents/<org>/<agent>/` so you can
+6. Hardlinks the merged WAV into `data/agents/<org>/<agent>/` so you can
    listen to one agent's full corpus without hunting through per-call
    folders. No bytes are duplicated where the filesystem supports
    hardlinks (NTFS, ext4, APFS).
@@ -60,21 +60,21 @@ copy .env.example .env          # Windows
 #    Option B: save a Gemini API key as ./keys/api_key.txt
 
 # 4. Verify the repo is consistent (no audio generated yet)
-python verify.py
+python src/verify.py
 
 # 5. Parse-check a single script without spending any API credits
-python generate_audio.py --dry-run --call CALL_01_refund_outage
+python src/generate_audio.py --dry-run --call CALL_01_refund_outage
 
 # 6. Generate one call as a smoke test (~5 minutes, ~50 API calls)
-python generate_audio.py --call CALL_01_refund_outage
+python src/generate_audio.py --call CALL_01_refund_outage
 
 # 7. Generate everything else
-python generate_audio.py                          # skips any call with a merged WAV
-python build_ground_truth.py                      # emit per-call GT + manifest
+python src/generate_audio.py                          # skips any call with a merged WAV
+python src/build_ground_truth.py                      # emit per-call GT + manifest
 ```
 
-The merged WAVs land in `output/<call_id>/` and are hardlinked into
-`agents/<org>/<agent>/`.  Copy them into your VocalMind
+The merged WAVs land in `data/output/<call_id>/` and are hardlinked into
+`data/agents/<org>/<agent>/`.  Copy them into your VocalMind
 `storage/audio/<org_slug>/` folder; the watcher will pick them up
 automatically (default scan interval: 15 s).
 
@@ -114,18 +114,18 @@ Two credential paths are supported, in priority order:
 Useful before and after generation, and in CI.
 
 ```bash
-python verify.py                       # audit every script
-python verify.py CALL_03 CALL_36       # audit just the listed call(s)
+python src/verify.py                       # audit every script
+python src/verify.py CALL_03 CALL_36       # audit just the listed call(s)
 ```
 
 It checks, per script:
 
 - The `turns:` value in YAML matches the number of `[Tnn]` blocks in the body.
-- The number of per-turn WAVs in `output/<call>/turns/` matches `turns:`.
-- A merged WAV exists at `output/<call>/`.
-- A ground-truth JSON exists at `ground_truth/<call>.json`.
+- The number of per-turn WAVs in `data/output/<call>/turns/` matches `turns:`.
+- A merged WAV exists at `data/output/<call>/`.
+- A ground-truth JSON exists at `data/ground_truth/<call>.json`.
 
-It also tells you how many entries in `output/generation.log` were
+It also tells you how many entries in `data/output/generation.log` were
 historical retry-failed errors (those are normally already recovered;
 the per-call rows above will show any that aren't).
 
@@ -137,35 +137,37 @@ Exit code: `0` clean, `1` any gap found, `2` repo not found.
 
 ```
 tts-audio-generator/
-├── generate_audio.py        # Main synthesis pipeline
-├── parse_scripts.py         # Markdown → Turn / Coverage / Metadata parser
-├── emotion_map.py           # TTS emotion → VocalMind canonical 7-label map
-├── build_ground_truth.py    # Emit per-call GT JSON + manifest.json
-├── verify.py                # One-command corpus audit
-├── requirements.txt
-├── .env.example             # Copy to .env; document your configuration
-├── .gitignore
-├── README.md
-├── scripts/                 # 50 call scripts (tracked)
+├── src/                          # Python source (entry-point scripts)
+│   ├── generate_audio.py         #   Main synthesis pipeline
+│   ├── parse_scripts.py          #   Markdown → Turn / Coverage / Metadata parser
+│   ├── emotion_map.py            #   TTS emotion → VocalMind canonical 7-label map
+│   ├── build_ground_truth.py     #   Emit per-call GT JSON + manifest.json
+│   └── verify.py                 #   One-command corpus audit
+├── scripts/                      # 50 call scripts (tracked)
 │   ├── README.md
 │   ├── tts_style_instructions.md
 │   ├── CALL_01_refund_outage.md
 │   ├── CALL_02_billing_dispute.md
 │   └── …
-├── ground_truth/            # Per-call GT JSON + manifest.json (tracked)
-│   ├── manifest.json
-│   ├── CALL_01_refund_outage.json
-│   └── …
-├── output/                  # Generated audio (gitignored — regenerable)
-│   └── CALL_<id>/
-│       ├── turns/T01_AGENT.wav, T02_CUSTOMER.wav, …
-│       └── CALL_<NN>_<agent>_<scenario>.wav     ← merged
-├── agents/                  # Per-agent rollup (gitignored — hardlinked)
-│   ├── nexalink/{priya,daniel,marcus,aisha,hannah}/*.wav
-│   └── meridian/{sarah,tyler,andre,jasmine,karen}/*.wav
-└── keys/                    # Credentials (gitignored)
-    ├── <service-account>.json     ← or
-    └── api_key.txt
+├── data/                         # Generated artifacts
+│   ├── ground_truth/             #   Per-call GT JSON + manifest (tracked)
+│   │   ├── manifest.json
+│   │   ├── CALL_01_refund_outage.json
+│   │   └── …
+│   ├── output/                   #   Generated audio (gitignored — regenerable)
+│   │   └── CALL_<id>/
+│   │       ├── turns/T01_AGENT.wav, T02_CUSTOMER.wav, …
+│   │       └── CALL_<NN>_<agent>_<scenario>.wav     ← merged
+│   └── agents/                   #   Per-agent rollup (gitignored — hardlinked)
+│       ├── nexalink/{priya,daniel,marcus,aisha,hannah}/*.wav
+│       └── meridian/{sarah,tyler,andre,jasmine,karen}/*.wav
+├── keys/                         # Credentials (gitignored)
+│   ├── <service-account>.json    #   or
+│   └── api_key.txt
+├── requirements.txt
+├── .env.example                  # Copy to .env; document your configuration
+├── .gitignore
+└── README.md
 ```
 
 ---
@@ -210,11 +212,11 @@ see below).
 2. Edit the YAML `agent_profile.name` to the existing agent's first
    name, and `customer_profile.voice_hint` to a clear description.
 3. Write the dialog turns.
-4. `python verify.py CALL_NN_<scenario>` confirms the script parses.
-5. `python generate_audio.py --dry-run --call CALL_NN_<scenario>`
+4. `python src/verify.py CALL_NN_<scenario>` confirms the script parses.
+5. `python src/generate_audio.py --dry-run --call CALL_NN_<scenario>`
    confirms voices resolve.
-6. `python generate_audio.py --call CALL_NN_<scenario>` generates it.
-7. `python build_ground_truth.py --call CALL_NN_<scenario>` emits GT.
+6. `python src/generate_audio.py --call CALL_NN_<scenario>` generates it.
+7. `python src/build_ground_truth.py --call CALL_NN_<scenario>` emits GT.
 
 ### A new agent
 
@@ -226,7 +228,7 @@ Add an entry to `AGENT_VOICE_BY_NAME` (Gemini voice ID) and
 
 Use any short slug (`nexalink`, `meridian`, …). Add each of its agents'
 entries to `AGENT_ORG_BY_NAME` mapping to that slug. The rollup folders
-under `agents/<org>/` are created automatically on first generation.
+under `data/agents/<org>/` are created automatically on first generation.
 
 ---
 
@@ -235,17 +237,17 @@ under `agents/<org>/` are created automatically on first generation.
 After writing or editing a script, regenerate the ground-truth JSON:
 
 ```bash
-python build_ground_truth.py                                # all scripts
-python build_ground_truth.py --call CALL_06_pin_reset       # one script
-python build_ground_truth.py --check                        # validate only
+python src/build_ground_truth.py                                # all scripts
+python src/build_ground_truth.py --call CALL_06_pin_reset       # one script
+python src/build_ground_truth.py --check                        # validate only
 ```
 
 This produces:
 
-* `ground_truth/<call_id>.json` — call-level metadata + Coverage table +
+* `data/ground_truth/<call_id>.json` — call-level metadata + Coverage table +
   every turn with both the rich TTS emotion tag and the VocalMind
   canonical label (`emotion_gt`).
-* `ground_truth/manifest.json` — VocalMind-compatible index of all calls
+* `data/ground_truth/manifest.json` — VocalMind-compatible index of all calls
   with evaluation targets (STT WER, speaker diarization, emotion
   accuracy, RAG compliance, agent assignment).
 
@@ -333,7 +335,7 @@ about 5 minutes.
 | `FileNotFoundError: No service-account JSON or api_key.txt found` | Drop credentials into `keys/`, or set `TTS_KEY_DIR` in `.env`. |
 | `403 Permission denied` (Vertex) | Service account is missing `Vertex AI User` on `TTS_PROJECT_ID`, or the API isn't enabled. |
 | `verify.py` shows `[missing T05]` | One turn never made it to disk (transient error). Re-run `generate_audio.py --call <id>` — only the missing turn hits the API. |
-| Generation seems "stuck" | Normal 10-RPM throttle. Check the latest log line in `output/generation.log` — if it's still ticking, it's fine. |
+| Generation seems "stuck" | Normal 10-RPM throttle. Check the latest log line in `data/output/generation.log` — if it's still ticking, it's fine. |
 | Voice sounds wrong gender | Check `AGENT_VOICE_BY_NAME` and the customer voice pool in `generate_audio.py`. |
 
 ---

@@ -53,16 +53,16 @@ except ImportError:
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
-_PIPELINE   = Path(__file__).resolve().parent
+_PIPELINE   = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = _PIPELINE / "scripts"
-OUTPUT_DIR  = _PIPELINE / "output"
+OUTPUT_DIR  = _PIPELINE / "data" / "output"
 
-# Per-agent rollup: a sibling of output/ where each agent has a folder
+# Per-agent rollup: a sibling of data/output/ where each agent has a folder
 # containing every merged WAV they were the AGENT on. Hardlinked from
-# output/ where the filesystem supports it (same bytes on disk, two paths),
-# otherwise copied. Useful for listening to one agent's full corpus at a time
-# without hunting through per-call folders.
-AGENTS_DIR  = _PIPELINE / "agents"
+# data/output/ where the filesystem supports it (same bytes on disk, two
+# paths), otherwise copied. Useful for listening to one agent's full corpus
+# at a time without hunting through per-call folders.
+AGENTS_DIR  = _PIPELINE / "data" / "agents"
 
 # Credentials directory.  Looks for a service-account JSON or api_key.txt.
 # Override with the TTS_KEY_DIR environment variable (or .env entry) if your
@@ -723,7 +723,7 @@ def _copy_to_agent_folder(merged_path: Path, agent_token: str) -> None:
         # fall back to a full copy so the rollup still works.
         shutil.copy2(merged_path, dst)
         link_kind = "copy"
-    logging.info(f"  → agents/{org}/{agent_token}/{merged_path.name}  ({link_kind})")
+    logging.info(f"  → data/agents/{org}/{agent_token}/{merged_path.name}  ({link_kind})")
 
 
 # ── Credentials & client ──────────────────────────────────────────────────────

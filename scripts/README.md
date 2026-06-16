@@ -106,16 +106,16 @@ the spoken text:
 1. Write or edit a script under `scripts/CALL_NN_*.md`.
 2. Validate the header grammar and emotion vocabulary:
    ```bash
-   python generate_audio.py --dry-run --call CALL_NN_<name>
-   python build_ground_truth.py --check
+   python src/generate_audio.py --dry-run --call CALL_NN_<name>
+   python src/build_ground_truth.py --check
    ```
 3. Generate audio:
    ```bash
-   python generate_audio.py --call CALL_NN_<name>
+   python src/generate_audio.py --call CALL_NN_<name>
    ```
 4. Emit VocalMind ground-truth JSON:
    ```bash
-   python build_ground_truth.py
+   python src/build_ground_truth.py
    ```
 5. Drop the merged `.wav` into VocalMind's
    `storage/audio/<org>/` folder and the matching `.json` into
